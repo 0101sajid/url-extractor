@@ -21,8 +21,14 @@ app.get('/search', async (req, res) => {
         const fetch = (await import('node-fetch')).default;
         const response = await fetch(`https://www.googleapis.com/customsearch/v1?q=${query}&cx=${cx}&key=${apiKey}&start=${start}`);
         const data = await response.json();
-        res.json(data);
+        if (response.ok) {
+            res.json(data);
+        } else {
+            console.error(`Error fetching search results: ${data.error.message}`);
+            res.status(response.status).json({ error: data.error.message });
+        }
     } catch (error) {
+        console.error(`Error: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 });
