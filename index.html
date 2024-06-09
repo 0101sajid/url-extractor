@@ -137,7 +137,7 @@
                 for (let page = 0; page < pagesToFetch; page++) {
                     const start = page * resultsPerPage + 1;
                     console.log(`Fetching page ${page + 1}...`);
-                    const response = await fetch(`http://localhost:3000/search?q=${query}&start=${start}`);
+                    const response = await fetch(`https://url-extractor-wy3y.onrender.com/search?q=${query}&start=${start}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
@@ -152,7 +152,7 @@
                 downloadBtn.disabled = false;
             } catch (error) {
                 console.error('Error fetching search results:', error);
-                errorContainer.textContent = 'Not Working!!';
+                errorContainer.textContent = `Error: ${error.message}`;
             }
         }
 
