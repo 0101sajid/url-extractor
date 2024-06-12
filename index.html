@@ -131,13 +131,14 @@
             allUrls = [];
             resultsContainer.innerHTML = '';
             errorContainer.innerHTML = '';
+            updateDownloadButton();
             downloadBtn.disabled = true;
 
             try {
                 for (let page = 0; page < pagesToFetch; page++) {
                     const start = page * resultsPerPage + 1;
                     console.log(`Fetching page ${page + 1}...`);
-                    const response = await fetch(`https://url-extractor-wy3y.onrender.com/search?q=${query}&start=${start}`);
+                    const response = await fetch(`http://localhost:3000/search?q=${query}&start=${start}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
@@ -148,11 +149,18 @@
                     console.log(`Fetched data for page ${page + 1}:`, data);
                     displayResults(data.items);
                     saveUrls(data.items);
+
+                    // Stop fetching if we have enough results
+                    if (allUrls.length >= numberOfResults) {
+                        break;
+                    }
                 }
-                downloadBtn.disabled = false;
             } catch (error) {
                 console.error('Error fetching search results:', error);
-                errorContainer.textContent = `Error: ${error.message}`;
+                errorContainer.textContent = 'Not Working!!';
+            } finally {
+                updateDownloadButton();
+                downloadBtn.disabled = false;
             }
         }
 
@@ -173,6 +181,17 @@
             results.forEach(result => {
                 allUrls.push(result.link);
             });
+            updateDownloadButton();
+        }
+
+        function updateDownloadButton() {
+            if (allUrls.length > 0) {
+                downloadBtn.textContent = `Download ${allUrls.length} URLs`;
+                downloadBtn.disabled = false;
+            } else {
+                downloadBtn.textContent = 'Download URLs';
+                downloadBtn.disabled = true;
+            }
         }
 
         function downloadUrls() {
@@ -185,7 +204,7 @@
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `${currentQuery.replace(/\s+/g, '_')}_urls.txt`;
+            a.download = `${currentQuery.replace(/\s+/g, '_')}_${allUrls.length}_urls.txt`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
